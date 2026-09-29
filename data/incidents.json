@@ -1,0 +1,477 @@
+[
+  {
+    "id": "INC-001",
+    "service": "auth-service",
+    "severity": "SEV1",
+    "symptoms": "DB connection pool exhaustion, API timeouts, error 'too many connections'",
+    "root_cause": "Leak in v2.4.1 deployment connection pool handling",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Pool exhausted again in 40 minutes. DO NOT JUST RESTART."
+      }
+    ],
+    "successful_fix": {
+      "action": "rollback_deployment",
+      "version": "v2.4.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-002",
+    "service": "payment-gateway",
+    "severity": "SEV1",
+    "symptoms": "High CPU saturation (99%), API latency spike to 4500ms",
+    "root_cause": "Infinite loop in tax calculation logic added in v1.8.2",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Loop re-triggered on next incoming request."
+      }
+    ],
+    "successful_fix": {
+      "action": "rollback_deployment",
+      "version": "v1.8.1",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-003",
+    "service": "user-profile",
+    "severity": "SEV2",
+    "symptoms": "High memory usage 98%, OOM kills on worker pods",
+    "root_cause": "Memory leak in avatar image processing library",
+    "failed_attempts": [
+      {
+        "action": "clear_cache",
+        "result": "failed",
+        "notes": "Cache flush did not free heap memory."
+      }
+    ],
+    "successful_fix": {
+      "action": "restart_service",
+      "version": "v3.1.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-004",
+    "service": "order-service",
+    "severity": "SEV2",
+    "symptoms": "Order creation latency > 5000ms, queue backing up",
+    "root_cause": "Kafka topic partition consumer group lag",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Consumer lag persisted after pod restart."
+      }
+    ],
+    "successful_fix": {
+      "action": "scale_workers",
+      "version": "v1.4.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-005",
+    "service": "search-index",
+    "severity": "SEV1",
+    "symptoms": "Empty search results for users",
+    "root_cause": "Elasticsearch cluster red status, disk 100% full",
+    "failed_attempts": [
+      {
+        "action": "reindex_data",
+        "result": "failed",
+        "notes": "Disk space was full, reindex halted."
+      }
+    ],
+    "successful_fix": {
+      "action": "expand_disk_space",
+      "version": "v2.0.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-006",
+    "service": "auth-service",
+    "severity": "SEV1",
+    "symptoms": "JWT token verification failures",
+    "root_cause": "Expired RSA public key in key vault",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Expired key remained in vault."
+      }
+    ],
+    "successful_fix": {
+      "action": "rotate_keys",
+      "version": "v2.4.2",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-007",
+    "service": "notification-service",
+    "severity": "SEV2",
+    "symptoms": "Email alerts not delivering",
+    "root_cause": "SendGrid API rate limit reached",
+    "failed_attempts": [
+      {
+        "action": "resend_batch",
+        "result": "failed",
+        "notes": "Triggered rate limiting again."
+      }
+    ],
+    "successful_fix": {
+      "action": "switch_email_provider",
+      "version": "v1.1.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-008",
+    "service": "frontend-web",
+    "severity": "SEV2",
+    "symptoms": "Blank white screen on checkout page",
+    "root_cause": "Missing CORS header on static assets",
+    "failed_attempts": [
+      {
+        "action": "purge_cdn_cache",
+        "result": "failed",
+        "notes": "Origin server missing header config."
+      }
+    ],
+    "successful_fix": {
+      "action": "update_cors_policy",
+      "version": "v4.0.1",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-009",
+    "service": "billing-service",
+    "severity": "SEV1",
+    "symptoms": "Duplicate charges reported by customers",
+    "root_cause": "Race condition in webhook handler",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Race condition present in code."
+      }
+    ],
+    "successful_fix": {
+      "action": "enable_idempotency_key",
+      "version": "v2.2.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-010",
+    "service": "inventory-service",
+    "severity": "SEV2",
+    "symptoms": "Out of stock item purchasing allowed",
+    "root_cause": "Redis cache stale stock count",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Redis cache retained stale keys."
+      }
+    ],
+    "successful_fix": {
+      "action": "flush_redis_cache",
+      "version": "v1.0.5",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-011",
+    "service": "analytics-db",
+    "severity": "SEV3",
+    "symptoms": "Nightly ETL job failure",
+    "root_cause": "Schema mismatch on imported CSV field",
+    "failed_attempts": [
+      {
+        "action": "rerun_job",
+        "result": "failed",
+        "notes": "Source file had bad formatting."
+      }
+    ],
+    "successful_fix": {
+      "action": "apply_schema_migration",
+      "version": "v1.0.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-012",
+    "service": "recommendation-engine",
+    "severity": "SEV2",
+    "symptoms": "Model prediction latency high",
+    "root_cause": "GPU memory fragmentation",
+    "failed_attempts": [
+      {
+        "action": "reduce_batch_size",
+        "result": "failed",
+        "notes": "Fragmentation needed reset."
+      }
+    ],
+    "successful_fix": {
+      "action": "restart_container",
+      "version": "v2.1.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-013",
+    "service": "auth-service",
+    "severity": "SEV2",
+    "symptoms": "SAML SSO redirect loop",
+    "root_cause": "Clock skew between Auth server and IdP",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Clock still out of sync."
+      }
+    ],
+    "successful_fix": {
+      "action": "sync_ntp_clock",
+      "version": "v2.4.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-014",
+    "service": "api-gateway",
+    "severity": "SEV1",
+    "symptoms": "Spike in 429 Too Many Requests errors",
+    "root_cause": "DDoS attempt on public search endpoint",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Traffic immediately overwhelmed gateway."
+      }
+    ],
+    "successful_fix": {
+      "action": "enable_cloudflare_rate_limit",
+      "version": "v3.0.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-015",
+    "service": "logging-pipeline",
+    "severity": "SEV3",
+    "symptoms": "Log messages dropping in Fluentd",
+    "root_cause": "Buffer queue disk buffer exhaustion",
+    "failed_attempts": [
+      {
+        "action": "restart_fluentd",
+        "result": "failed",
+        "notes": "Buffer stayed full."
+      }
+    ],
+    "successful_fix": {
+      "action": "increase_buffer_limit",
+      "version": "v1.2.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-016",
+    "service": "cart-service",
+    "severity": "SEV2",
+    "symptoms": "Items disappearing from cart on refresh",
+    "root_cause": "Session cookie missing SameSite attribute",
+    "failed_attempts": [
+      {
+        "action": "clear_redis",
+        "result": "failed",
+        "notes": "Browser rejected cookie regardless."
+      }
+    ],
+    "successful_fix": {
+      "action": "update_cookie_policy",
+      "version": "v1.1.2",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-017",
+    "service": "payment-gateway",
+    "severity": "SEV1",
+    "symptoms": "Stripe webhook signature validation failed",
+    "root_cause": "Mismatched webhook secret key after rotation",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Secret key environment variable was stale."
+      }
+    ],
+    "successful_fix": {
+      "action": "reload_env_secrets",
+      "version": "v1.8.3",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-018",
+    "service": "media-storage",
+    "severity": "SEV2",
+    "symptoms": "S3 image upload failures HTTP 403",
+    "root_cause": "IAM policy bucket permissions deleted",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "IAM permissions missing at AWS level."
+      }
+    ],
+    "successful_fix": {
+      "action": "attach_s3_policy",
+      "version": "v1.0.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-019",
+    "service": "dns-router",
+    "severity": "SEV1",
+    "symptoms": "Global outage for EU region users",
+    "root_cause": "Route53 health check failing false positive",
+    "failed_attempts": [
+      {
+        "action": "flush_dns",
+        "result": "failed",
+        "notes": "Health check endpoints were down."
+      }
+    ],
+    "successful_fix": {
+      "action": "override_health_check",
+      "version": "v2.0.0",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-020",
+    "service": "user-profile",
+    "severity": "SEV3",
+    "symptoms": "Profile avatars failing to render thumbnails",
+    "root_cause": "ImageMagick library memory allocation limit",
+    "failed_attempts": [
+      {
+        "action": "clear_cache",
+        "result": "failed",
+        "notes": "Limit was hit on image resize."
+      }
+    ],
+    "successful_fix": {
+      "action": "update_imagemagick_config",
+      "version": "v3.1.1",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-021",
+    "service": "order-service",
+    "severity": "SEV2",
+    "symptoms": "PDF invoice generation failure",
+    "root_cause": "Missing font dependency in Docker image",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Container image missing package."
+      }
+    ],
+    "successful_fix": {
+      "action": "rebuild_docker_image",
+      "version": "v1.4.1",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-022",
+    "service": "search-index",
+    "severity": "SEV2",
+    "symptoms": "Search query response time > 3000ms",
+    "root_cause": "Unoptimized wildcard query execution",
+    "failed_attempts": [
+      {
+        "action": "restart_cluster",
+        "result": "failed",
+        "notes": "Queries kept overloading CPU."
+      }
+    ],
+    "successful_fix": {
+      "action": "apply_query_filter",
+      "version": "v2.0.1",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-023",
+    "service": "notification-service",
+    "severity": "SEV3",
+    "symptoms": "SMS notifications delayed by 1 hour",
+    "root_cause": "Twilio account balance low credit",
+    "failed_attempts": [
+      {
+        "action": "resend_sms",
+        "result": "failed",
+        "notes": "Twilio rejected outbound SMS."
+      }
+    ],
+    "successful_fix": {
+      "action": "auto_topup_balance",
+      "version": "v1.1.1",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-024",
+    "service": "auth-service",
+    "severity": "SEV1",
+    "symptoms": "Password reset emails not sending",
+    "root_cause": "SMTP credentials expired",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Password remained invalid."
+      }
+    ],
+    "successful_fix": {
+      "action": "update_smtp_credentials",
+      "version": "v2.4.3",
+      "held_24h": true
+    }
+  },
+  {
+    "id": "INC-025",
+    "service": "billing-service",
+    "severity": "SEV2",
+    "symptoms": "Subscription status showing inactive after payment",
+    "root_cause": "Stripe event listener dropped event",
+    "failed_attempts": [
+      {
+        "action": "restart_service",
+        "result": "failed",
+        "notes": "Dropped event was not retried."
+      }
+    ],
+    "successful_fix": {
+      "action": "replay_stripe_events",
+      "version": "v2.2.1",
+      "held_24h": true
+    }
+  }
+]
